@@ -69,7 +69,7 @@ export const SettingsWrapperStyled = styled.div`
   }
 
   .MuiAutocomplete-endAdornment {
-    top: calc(50% - 25px);
+    top: -52px;
   }
 
   label {
