@@ -31,6 +31,7 @@ export const ConfigWrapperStyled = styled.div`
   align-items: center;
 
   button {
+    margin-top: 1rem;
     max-width: 1000px;
     width: 100%;
   }
@@ -62,6 +63,18 @@ export const SettingsWrapperStyled = styled.div`
   column-gap: 2rem;
   row-gap: 1rem;
   margin: 0 auto;
+
+  .MuiAutocomplete-inputRoot {
+    max-height: 40px;
+  }
+
+  .MuiAutocomplete-endAdornment {
+    top: calc(50% - 25px);
+  }
+
+  label {
+    line-height: 1;
+  }
 `
 
 export const TitleGridWrapperStyled = styled.span`

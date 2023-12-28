@@ -8,6 +8,7 @@ import {
 } from './Config.style'
 import axios from 'axios'
 import {
+  Autocomplete,
   Button,
   Checkbox,
   CircularProgress,
@@ -15,7 +16,8 @@ import {
   FormControlLabel,
   InputLabel,
   MenuItem,
-  Select
+  Select,
+  TextField
 } from '@mui/material'
 import Map from './Map'
 
@@ -62,12 +64,14 @@ const labels = {
 export const Config = ({ setResult, setPage }) => {
   const [loading, setLoading] = React.useState(false)
   const [loadingPages, setLoadingPages] = React.useState([0, 0])
+  const [suggests, setSuggests] = React.useState([])
   const [settings, setSettings] = React.useState({
     category_main_cb: 1,
     category_type_cb: 1,
     building_condition: [],
     category_sub_cb: [],
-    locality_region_id: []
+    locality_region_id: [],
+    exact_locality: {},
   })
 
   const getQueryFromSettings = () => {
@@ -82,6 +86,11 @@ export const Config = ({ setResult, setPage }) => {
       query.set('category_sub_cb', settings['category_sub_cb'].join('|'))
     if (settings['locality_region_id'].length > 0)
       query.set('locality_region_id', settings['locality_region_id'].join('|'))
+    if (Object.keys(settings['exact_locality']).length > 0) {
+      for (const key in settings['exact_locality']) {
+        query.set(key, settings['exact_locality'][key])
+      }
+    }
     return query.toString()
   }
 
@@ -106,6 +115,13 @@ export const Config = ({ setResult, setPage }) => {
         setPage(1)
       })
       .finally(() => setLoading(false))
+  }
+
+  const fetchSuggestion = (value) => {
+    if (value === '') return setSuggests([])
+    axios
+      .post('/api', { phrase: value })
+      .then(({ data }) => setSuggests(data.map((obj) => ({ ...obj.userData, category: obj.category }))))
   }
 
   const changeSettingsArray = (sub, value, remove = false) => {
@@ -206,10 +222,29 @@ export const Config = ({ setResult, setPage }) => {
         </GridWrapperStyled>
         <TitleGridWrapperStyled>Výber lokality</TitleGridWrapperStyled>
         <Map settings={settings} changeSettingsArray={changeSettingsArray} />
+        <TitleGridWrapperStyled>Upřesnit lokalitu</TitleGridWrapperStyled>
+        <Autocomplete
+          autoSelect
+          options={suggests}
+          onChange={(e, option) => changeSettings('exact_locality', { region: option.district, region_entity_id: option.municipality_id, region_entity_type: option.entityType })}
+          getOptionLabel={(option) => option ? `${option.suggestFirstRow}, ${option.suggestSecondRow}` : ''}
+          onInputChange={({ target }) => fetchSuggestion(target.value)}
+          isOptionEqualToValue={(option, value) => option.suggestFirstRow === value.suggestFirstRow && option.suggestSecondRow === value.suggestSecondRow}
+          renderInput={(params) => <TextField {...params} label='Lokalita' />}
+          renderOption={(props, option) => {
+            const { key, ...restProps } = props
+            return (
+              <li key={key} {...restProps} style={{ display: 'flex', columnGap: '4px' }}>
+                <h4 style={{ margin: 0 }}>{option.suggestFirstRow}</h4>
+                <span>- {option.suggestSecondRow}</span>
+              </li>
+            )
+          }}
+        />
       </SettingsWrapperStyled>
       <Button variant='outlined' onClick={() => fetchCount()} disabled={loading}>
         {loading && <CircularProgress />}
-        {loadingPages[1] === 0 ? (
+        {!loading || loadingPages[1] === 0 ? (
           <>Získat ceny</>
         ) : (
           <>{`Načteno ${loadingPages[0]} / ${loadingPages[1]} stránek`}</>
