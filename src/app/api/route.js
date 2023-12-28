@@ -12,6 +12,8 @@ import axios from 'axios'
 export async function GET(req) {
   let query = req.nextUrl.search
   if (query.includes('count')) query = query.substring(1)
+  query.replaceAll('%2F', '/')
+  query.replaceAll('%3F', '?')
   const sRealityUrl = 'https://www.sreality.cz/api/cs/v2/estates' + query + '&locality_country_id=112'
   const data = await axios({
     method: 'GET',
