@@ -92,7 +92,6 @@ export const Config = ({ setResult, setPage }) => {
   const fetchCount = async () => {
     setLoading(true)
     const query = await getQueryFromSettings()
-    console.log(query, `/api?/count?${query}`)
     axios
       .get(`/api?/count?${query}`)
       .then(async ({ data }) => {

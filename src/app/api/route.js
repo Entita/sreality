@@ -16,7 +16,6 @@ export async function GET(req) {
     query = query.replaceAll('%3F', '?')
     query = query.replaceAll('?/count', '/count')
   }
-  console.log('BLA ', query)
   const sRealityUrl = `https://www.sreality.cz/api/cs/v2/estates${query}&locality_country_id=112`
   const data = await axios({
     method: 'GET',
