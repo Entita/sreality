@@ -89,10 +89,12 @@ export const Config = ({ setResult, setPage }) => {
     return axios.get(`/api?${getQueryFromSettings()}&page=${page}&per_page=999`)
   }
 
-  const fetchCount = () => {
+  const fetchCount = async () => {
     setLoading(true)
+    const query = await getQueryFromSettings()
+    console.log(query, `/api?/count?${query}`)
     axios
-      .get(`/api?/count?${getQueryFromSettings()}`)
+      .get(`/api?/count?${query}`)
       .then(async ({ data }) => {
         const totalObjects = data.result_size
         const totalPages = Math.ceil(totalObjects / 999)
